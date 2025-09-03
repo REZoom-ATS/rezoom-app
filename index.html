@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REZoom: ATS Resume Scorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+
+        .container {
+            max-width: 900px;
+        }
+
+        .card {
+            background-color: #ffffff;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .cta-button {
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .file-upload-area {
+            border: 2px dashed #d1d5db;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .file-upload-area:hover {
+            border-color: #6366f1;
+            background-color: #eef2ff;
+        }
+
+        .progress-bar-container {
+            height: 8px;
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: #4f46e5;
+            transition: width 0.4s ease-in-out;
+        }
+
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: bold;
+            color: #ffffff;
+            background: conic-gradient(#4f46e5 0%, #3b82f6 100%);
+            transition: all 0.5s ease-in-out;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 1rem;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <!-- Main Container -->
+    <div id="main-container" class="container mx-auto p-8 card">
+
+        <!-- Header Section -->
+        <div class="text-center">
+            <h1 class="text-4xl font-bold text-gray-900">REZoom</h1>
+            <p class="mt-2 text-xl text-gray-600">Your ATS Resume Scorer</p>
+            <p class="mt-4 text-gray-500">
+                Upload your resume to get an instant ATS-friendly score and tips for improvement.
+            </p>
+        </div>
+
+        <!-- File Upload Area -->
+        <div id="upload-section" class="mt-8">
+            <label for="resume-upload" class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors duration-200">
+                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                    <svg class="w-10 h-10 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-4-4v-1a4 4 0 014-4h1a4 4 0 014 4v1a4 4 0 01-4 4h-1z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12h.01M19 12h.01M12 19v.01M12 15h.01"></path>
+                    </svg>
+                    <p class="mb-2 text-sm text-gray-500"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                    <p class="text-xs text-gray-500">PDF or DOCX files only</p>
+                </div>
+                <input id="resume-upload" type="file" class="hidden" accept=".pdf,.docx" />
+            </label>
+            <div id="file-name" class="mt-4 text-center text-sm font-medium text-gray-600"></div>
+        </div>
+
+        <!-- Processing State -->
+        <div id="processing-state" class="hidden mt-8 text-center">
+            <div class="progress-bar-container w-full max-w-sm mx-auto">
+                <div id="progress-bar" class="progress-bar" style="width: 0%;"></div>
+            </div>
+            <p id="processing-text" class="mt-4 text-gray-600">Analyzing your resume...</p>
+        </div>
+
+        <!-- Score and Results Section -->
+        <div id="results-section" class="hidden mt-8">
+            <div class="flex flex-col items-center">
+                <p class="text-2xl font-bold text-gray-700">Your ATS Score:</p>
+                <div id="score-circle" class="score-circle mt-4">0</div>
+                <p id="score-text" class="mt-4 text-lg text-gray-600"></p>
+            </div>
+
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                <div class="p-6 rounded-lg bg-gray-50">
+                    <h3 class="font-bold text-gray-900">Formatting & Layout</h3>
+                    <p id="layout-score" class="mt-1 text-2xl font-bold text-indigo-600">0%</p>
+                    <p id="layout-comment" class="mt-2 text-sm text-gray-500"></p>
+                </div>
+                <div class="p-6 rounded-lg bg-gray-50">
+                    <h3 class="font-bold text-gray-900">Content Strategy</h3>
+                    <p id="content-score" class="mt-1 text-2xl font-bold text-indigo-600">0%</p>
+                    <p id="content-comment" class="mt-2 text-sm text-gray-500"></p>
+                </div>
+                <div class="p-6 rounded-lg bg-gray-50">
+                    <h3 class="font-bold text-gray-900">Contact Information</h3>
+                    <p id="contact-score" class="mt-1 text-2xl font-bold text-indigo-600">0%</p>
+                    <p id="contact-comment" class="mt-2 text-sm text-gray-500"></p>
+                </div>
+            </div>
+
+            <div class="text-center mt-8">
+                <button id="cta-button" class="cta-button px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 focus:outline-none">
+                    Get My Free Consultation
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Contact Form Modal -->
+    <div id="contact-modal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center pb-3">
+                <h2 class="text-2xl font-bold">Contact Us for Services</h2>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <form id="contact-form" class="space-y-4">
+                <div>
+                    <label for="user-name" class="block text-sm font-medium text-gray-700">Name</label>
+                    <input type="text" id="user-name" name="name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                </div>
+                <div>
+                    <label for="user-email" class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" id="user-email" name="email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                </div>
+                <div>
+                    <label for="user-experience" class="block text-sm font-medium text-gray-700">Years of Experience</label>
+                    <input type="number" id="user-experience" name="experience" min="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" id="tailored-titles" name="tailoredTitles" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                    <label for="tailored-titles" class="ml-2 block text-sm text-gray-900">Add tailored resume titles (₹200)</label>
+                </div>
+                <div class="mt-4 p-4 rounded-lg bg-indigo-50 text-indigo-700 text-center font-semibold">
+                    Total Estimated Cost: <span id="estimated-price">₹0</span>
+                </div>
+                <button type="submit" class="w-full px-4 py-2 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 transition-colors">
+                    Send Inquiry
+                </button>
+            </form>
+        </div>
+    </div>
+    <div id="message-modal" class="modal">
+        <div class="modal-content text-center">
+            <h3 class="text-xl font-bold mb-4">Message</h3>
+            <p id="message-text" class="text-gray-700 mb-4"></p>
+            <button onclick="closeMessageModal()" class="px-4 py-2 bg-indigo-600 text-white rounded-md">Close</button>
+        </div>
+    </div>
+
+
+    <script>
+        // Elements
+        const uploadSection = document.getElementById('upload-section');
+        const processingState = document.getElementById('processing-state');
+        const resultsSection = document.getElementById('results-section');
+        const progressBar = document.getElementById('progress-bar');
+        const fileInput = document.getElementById('resume-upload');
+        const fileNameDisplay = document.getElementById('file-name');
+        const scoreCircle = document.getElementById('score-circle');
+        const scoreText = document.getElementById('score-text');
+        const layoutScoreElem = document.getElementById('layout-score');
+        const contentScoreElem = document.getElementById('content-score');
+        const contactScoreElem = document.getElementById('contact-score');
+        const layoutCommentElem = document.getElementById('layout-comment');
+        const contentCommentElem = document.getElementById('content-comment');
+        const contactCommentElem = document.getElementById('contact-comment');
+        const ctaButton = document.getElementById('cta-button');
+        const contactModal = document.getElementById('contact-modal');
+        const messageModal = document.getElementById('message-modal');
+        const messageText = document.getElementById('message-text');
+
+        let uploadedFile = null;
+
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            uploadedFile = file;
+            fileNameDisplay.textContent = `File selected: ${file.name}`;
+            showProcessing();
+
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                // The URL '/api/score' points to your Vercel serverless function.
+                const response = await fetch('/api/score', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    updateScores(result.score, result.scores, result.comments);
+                    // Update the CTA button to generate the email link
+                    ctaButton.onclick = () => {
+                        const emailBody = `Dear REZoom team,\n\nI would like to inquire about your resume building services. I recently had my resume scored and would like to get a quote. My name is ${result.personalData.name}, and my email is ${result.personalData.email}. My ATS score was ${result.score}.`;
+                        window.location.href = `mailto:jabjalib007@gmail.com?subject=Inquiry for Resume Building Service&body=${encodeURIComponent(emailBody)}`;
+                    };
+                } else {
+                    showMessage(result.message || "An error occurred during analysis.");
+                }
+            } catch (error) {
+                console.error("Error during API call:", error);
+                showMessage("An error occurred. Please try again later.");
+            }
+        });
+
+        function showProcessing() {
+            uploadSection.classList.add('hidden');
+            resultsSection.classList.add('hidden');
+            processingState.classList.remove('hidden');
+        }
+
+        function updateScores(overallScore, scores, comments) {
+            scoreCircle.textContent = overallScore;
+            scoreText.textContent = getScoreComment(overallScore);
+
+            layoutScoreElem.textContent = `${scores.formatting}%`;
+            contentScoreElem.textContent = `${scores.content}%`;
+            contactScoreElem.textContent = `${scores.contact}%`;
+            
+            layoutCommentElem.textContent = comments.formatting;
+            contentCommentElem.textContent = comments.content;
+            contactCommentElem.textContent = comments.contact;
+
+            hideProcessing();
+            resultsSection.classList.remove('hidden');
+        }
+
+        function getScoreComment(score) {
+            if (score >= 90) return "Excellent ATS score! Your resume is highly optimized.";
+            if (score >= 75) return "Great ATS score! A few tweaks can make it even better.";
+            if (score >= 50) return "Good start! Your resume needs some optimization for ATS.";
+            return "Your resume needs significant improvement for ATS compliance.";
+        }
+
+        function closeModal() {
+            contactModal.style.display = 'none';
+        }
+
+        function showMessage(text) {
+            messageText.textContent = text;
+            messageModal.style.display = 'flex';
+        }
+
+        function closeMessageModal() {
+            messageModal.style.display = 'none';
+        }
+        
+    </script>
+</body>
+</html>
