@@ -9,11 +9,13 @@ const fetch = require('node-fetch');
 
 // Initialize Google Sheets API with your credentials.
 // This version of the code reads the private key directly from the environment variable.
+const privateKey = process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n');
+
 const auth = new GoogleAuth({
     credentials: {
         client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
         // The private key must be correctly formatted with '\n' in Vercel's environment variables.
-        private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        private_key: privateKey,
     },
     scopes: ['https://www.googleapis.com/auth/spreadsheets'],
 });
