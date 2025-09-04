@@ -8,12 +8,12 @@ const pdf = require('pdf-parse');
 const fetch = require('node-fetch');
 
 // Initialize Google Sheets API with your credentials.
-// The private key is now expected in base64 format in the environment variable.
-const privateKey = Buffer.from(process.env.GOOGLE_PRIVATE_KEY_BASE64, 'base64').toString('utf8');
+// This version of the code reads the private key directly from the environment variable.
 const auth = new GoogleAuth({
     credentials: {
         client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-        private_key: privateKey,
+        // The private key must be correctly formatted with '\n' in Vercel's environment variables.
+        private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
     },
     scopes: ['https://www.googleapis.com/auth/spreadsheets'],
 });
