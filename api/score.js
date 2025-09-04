@@ -8,14 +8,10 @@ const pdf = require('pdf-parse');
 const fetch = require('node-fetch');
 
 // Initialize Google Sheets API with your credentials.
-// This version of the code reads the private key directly from the environment variable.
-const privateKey = process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n');
-
 const auth = new GoogleAuth({
     credentials: {
-        client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-        // The private key must be correctly formatted with '\n' in Vercel's environment variables.
-        private_key: privateKey,
+        client_email: "rezoom-service-account@rezoom-470615.iam.gserviceaccount.com",
+        private_key: "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCmSFncJXOSFn6A\ngiIdFdAIiRo6ioihob3t8RGElPmGnAJaw+n7FVYxjAP3KMeyVMZpJxkwYkNWL14Q\ntvGlRCmfljRRnTej3A+R52gBnyjQyn209gyEqBs46T9jathYv8qRPBTLUCHdSbIF\nJw1voMZVNyWNYnqHmrGGtL9Kl4sB3aQoo57ZEEYbdWtzxWYzsNWz/IRqV1CaFBWv\nLyBnmo0eIrVTJSGR6xirfJvgPyniPdU4A6uy/cyFMOxSbfxW6sVajxcAezBiddbN\n2VNsJC5/t9wqzbqiaxXASNWmxxEOIZg9eZKhNOhJyFRpDjR9wmZ3mFRTmRBUQ/mB\nCspUy1iJAgMBAAECggEABPs0JWZbrrARJ0ctpgoSpFZIs/9Q89g0FtWN/R+mbn/S\nmoBGw+y6ksHNfWiTzQgFxqiCDe7vYVZOl0fcQGOCryqWjXIDhdLrF2vH1guIwBS8\njukq+V4axmWcP4P8FKWavFpnaREh71+5VIOmx5b2qPyXVXbhTXfZE95ze8OySXws\nWTw7y9Ba0wZh+8i+kmXtAYbsY7RyD0U+dHrKFPHYRl+AsGEqtIxmmxEeMiwSl9Ki\nrEu1YwW4ydPKQ3CwvQpX8Tr18FlxR5TDVT6Z2Av8zjArNQqJVdiy0JKlGfX3SYz+\nuxq5Ms3SkGvyekN4fi1cEXk8p94GjE6F67FqjRxBjQKBgQDftuj0Gz4vy44AjW9S\nF2bo4KPnKbO71lWUSi3CCSSHUdMQhZfUPBbXx2jGqc0GXRq+A5U/Xh1iwKFDBcCt\nr5oAxkt4JQ7+hlWjP5rgE6mm+zlRPo+eaj8OpGBJQRP7DR5dyhOil+0uFMtQfSlr\n5bCEeiwGx2iLtl6sU8kpPKGJZwKBgQC+R6GeS63pHrEnoQTdmq5NdW10HRJGDUPC\n6jg+bBEB6y7PmLVq+xGxXpSV1nLohFegltRqf2WzkbxtVwlO2FwAYbWq/t3Muy62\nZs/8YDGj9tYtZvyB3DIYn/J7yMGSJplc8vGELtt11LCx/RPp+kJSqgjqm5U5cJ0B\nx8PjVfyojwKBgQCj43CXW9nb08hsuTBjOEeotOD9+Pv10JgTMaCB9IaxJ41zHhtT\nM3zN9+XIk/TqKNtrlxI9t6aOLoqym0UEH/Gr34cPzHT3n+gP3lrTJxNet/LmARI\nrlcRl/P91lIX6c1kMiTeSWR1DMDBb1/H7pW5B3N3Z+A78dc7cYn9zrAcYwKBgFDk\n9yrrFbakG8CzTfRAjJXVtIDG0zwA66v0E5FGNDzSlYYgcBBZSP5VLWo+T3/Ws8JM\nHWZhXwVmkesSM5zXktV+tNNLo1QkyAk30HiFFNWWXRvUSsmSqaGabmZ9xP2zd0Py\n7Qa7PQXtNGmXJF42zPeD3mKPXnObEsTs/rSpm861AoGBAL+/ZaS5YmGGWhPwP33V\nNEKPUbvwpZ956xGbmX6vUYcOXSns/wSR4iD7xzdkPK2GmNSNIx0Ma1bmDFd1L+Ao\nwuNEoEmr0pZ1yj2MP0tZEQGiaYHI76nFKLsgjLYMVjNm9OV/FLcBfQqyMBrrR+D/\niRcm+lJ0BAOA/55GYt3QN8PU\n-----END PRIVATE KEY-----\n",
     },
     scopes: ['https://www.googleapis.com/auth/spreadsheets'],
 });
@@ -50,7 +46,7 @@ module.exports = async (req, res) => {
 **Scoring Criteria:**
 1.  **Formatting & Layout:** Score on simplicity, common fonts, consistent date formats, and no images.
 2.  **Content Strategy:** Score on strong action verbs, quantifiable metrics, and evidence of impact.
-3.  **Contact Information:** Score on correct order (Name, headline, contact) and conciseness.
+3.  **Contact Information:** Score on correct order (Name, followed by a professional headline, then contact details).
 
 **Resume Content:**
 ---
