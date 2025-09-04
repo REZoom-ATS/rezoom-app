@@ -69,6 +69,11 @@ ${resumeText}
             body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
         });
         
+        if (!geminiResponse.ok) {
+            console.error('Gemini API Error:', await geminiResponse.text());
+            throw new Error('Failed to connect to the Gemini API.');
+        }
+
         const geminiResult = await geminiResponse.json();
         const aiResponseText = geminiResult.candidates[0].content.parts[0].text;
         
