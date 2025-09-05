@@ -7,7 +7,7 @@ const mammoth = require('mammoth');
 const pdf = require('pdf-parse');
 const fetch = require('node-fetch');
 
-// Initialize Google Sheets API with your credentials.
+// This code reads the private key and service email from Vercel's environment variables.
 const privateKey = process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n');
 
 const auth = new GoogleAuth({
@@ -15,7 +15,7 @@ const auth = new GoogleAuth({
         client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
         private_key: privateKey,
     },
-    scopes: ['[https://www.googleapis.com/auth/spreadsheets](https://www.googleapis.com/auth/spreadsheets)'],
+    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
 });
 const sheets = google.sheets({ version: 'v4', auth });
 
@@ -63,7 +63,7 @@ ${resumeText}
     -   "comments": {"formatting": "string", "content": "string", "contact": "string"}
 -   Do not include any other text or explanation outside of the JSON object.`;
 
-        const geminiResponse = await fetch('[https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=](https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=)' + apiKey, {
+        const geminiResponse = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=' + apiKey, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
@@ -76,7 +76,7 @@ ${resumeText}
 
         const geminiResult = await geminiResponse.json();
         
-        // This is the updated, more robust code to strip the markdown.
+        // This is the new, crucial line of code to strip the markdown.
         let aiResponseText = geminiResult.candidates[0].content.parts[0].text;
         aiResponseText = aiResponseText.replace(/```json/g, '').replace(/```/g, '').trim();
 
