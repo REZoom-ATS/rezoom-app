@@ -259,6 +259,7 @@
             fileNameDisplay.textContent = `File selected: ${file.name}`;
             showProcessing();
 
+            // Create a FormData object to send both the file and user data
             const formData = new FormData();
             formData.append('file', file);
             
