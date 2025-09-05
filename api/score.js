@@ -76,11 +76,9 @@ ${resumeText}
 
         const geminiResult = await geminiResponse.json();
         
-        // This is the new, crucial line of code to strip the markdown.
+        // This is the updated, more robust code to strip the markdown.
         let aiResponseText = geminiResult.candidates[0].content.parts[0].text;
-        if (aiResponseText.startsWith('```json')) {
-             aiResponseText = aiResponseText.substring(7, aiResponseText.lastIndexOf('```'));
-        }
+        aiResponseText = aiResponseText.replace(/```json/g, '').replace(/```/g, '').trim();
 
         const atsResult = JSON.parse(aiResponseText);
         
